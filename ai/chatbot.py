@@ -1,12 +1,17 @@
-import openai
 import pandas as pd
 from dotenv import load_dotenv
 import os
+from openai import OpenAI
 
 # Load environment variables
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
+
+if not OPENAI_API_KEY:
+    raise ValueError("OpenAI API key not found! Please add it to .env")
+
+# Create OpenAI client
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 def load_data(path="data/cleaned_statements.csv"):
     """Load processed transaction data"""
@@ -31,11 +36,11 @@ def generate_response(user_input, df):
     Provide a helpful, concise financial insight.
     """
 
-    response = openai.ChatCompletion.create(
+    response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "user", "content": prompt}]
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
 # ==============================
 # Run chatbot in terminal
